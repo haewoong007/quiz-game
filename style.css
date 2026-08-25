@@ -1,0 +1,385 @@
+/* 생성: 2026-08-13 23:09 KST */
+
+:root {
+  --ink: #1c1b1f;
+  --ink-soft: #49454f;
+  --line: #c9c5d0;
+  --bg: #fdfcff;
+  --surface: #ffffff;
+  --accent: #1a4fa0;      /* 흰 배경 대비 8.0:1 */
+  --accent-ink: #ffffff;
+  --danger: #8c1d18;      /* 흰 배경 대비 8.2:1 */
+  --danger-bg: #fdecea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem 1rem 3rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 1.25rem;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+/* 제목은 초점을 받되 테두리는 그리지 않는다. 화면 전환을 알리는 용도라
+   눈에 보이는 초점 표시가 필요한 조작 요소가 아니다. */
+.title:focus {
+  outline: none;
+}
+
+/* 화면 전환 */
+
+.screen[hidden] {
+  display: none;
+}
+
+/* 안내 문구 */
+
+.data-error,
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.data-error {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.name-error {
+  min-height: 1.4rem;
+  margin: 0.4rem 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+/* 이름 입력 */
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+#player-name {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+
+/* 카테고리 카드 */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 76px;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: var(--accent);
+}
+
+.card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.card-count {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* 버튼 */
+
+.btn {
+  min-height: 44px;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.btn-quiet {
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  text-decoration: underline;
+}
+
+.start-actions,
+.result-actions,
+.ranking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.start-actions .btn {
+  flex: 1 1 auto;
+}
+
+/* 퀴즈 진행 화면 */
+
+.quiz-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+
+.quiz-bar #btn-quit {
+  margin-left: auto;
+  min-height: auto;
+  padding: 0.2rem 0.3rem;
+}
+
+.badge {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* 난이도 배지. 흰 배경이 아니라 옅은 같은 계열 바탕 위에 짙은 글자를 얹어
+   세 색 모두 대비 4.5:1을 넘긴다. 주황이 가장 빠듯한 자리다. */
+.diff-easy {
+  background: #e3f3e7;
+  color: #145c2e;
+}
+
+.diff-medium {
+  background: #e6eefb;
+  color: #1a4fa0;
+}
+
+.diff-hard {
+  background: #fbebdd;
+  color: #8a4b00;
+}
+
+.question {
+  margin: 0 0 1.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.question:focus {
+  outline: none;
+}
+
+.options {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.option {
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  /* 글이 길면 줄바꿈해 전부 보인다. 잘라 내지 않는다. */
+  white-space: normal;
+  word-break: keep-all;
+  cursor: pointer;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.option:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.option-correct {
+  border-color: #146c2e;
+  background: #e3f3e7;
+  color: #0f4a22;
+  font-weight: 600;
+}
+
+.option-wrong {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* 피드백. aria-live를 주지 않는다. 초점 이동으로만 전달한다(PRD 3.2절). */
+.feedback {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.feedback:focus {
+  outline: none;
+}
+
+.feedback-verdict {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+
+.feedback-explanation {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+/* 초점 표시. 조작 요소에서 항상 보이게 한다. */
+
+.card:focus-visible,
+.btn:focus-visible,
+.option:focus-visible,
+#player-name:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 결과 화면 */
+
+#result-score {
+  margin: 0 0 0.3rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+#result-rate,
+#result-player {
+  margin: 0 0 0.3rem;
+  color: var(--ink-soft);
+}
+
+#result-rank-message {
+  margin: 0.8rem 0;
+  font-weight: 600;
+}
+
+/* 순위표 */
+
+.ranking-group {
+  margin-bottom: 1.4rem;
+}
+
+.ranking-group h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.ranking-table th {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* 강조를 색만으로 주지 않는다. 왼쪽 굵은 선을 함께 둔다. */
+.ranking-row-highlight td {
+  background: #eaf0fa;
+  font-weight: 600;
+}
+
+.ranking-row-highlight td:first-child {
+  border-left: 4px solid var(--accent);
+}
+
+.ranking-empty {
+  margin: 0;
+  padding: 0.6rem 0;
+  color: var(--ink-soft);
+}
+
+/* 좁은 화면 */
+
+@media (max-width: 420px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

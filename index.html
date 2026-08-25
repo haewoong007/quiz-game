@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- 생성: 2026-08-13 23:09 KST -->
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>상식 퀴즈 게임</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <!-- 시작 화면 -->
+    <section class="screen" id="screen-start">
+      <h1 class="title" id="start-title" tabindex="-1">상식 퀴즈 게임</h1>
+
+      <p class="data-error" id="data-error" hidden>문제 데이터를 불러오지 못했습니다.</p>
+
+      <div class="field">
+        <label class="field-label" for="player-name">플레이어 이름</label>
+        <input type="text" id="player-name" autocomplete="off">
+        <p class="name-error" id="name-error"></p>
+      </div>
+
+      <!-- 카드는 CATEGORIES에서 그린다. 마크업에 카테고리 이름을 쓰지 않는다. -->
+      <div class="cards" id="category-cards"></div>
+
+      <div class="start-actions">
+        <button type="button" class="btn btn-primary" id="btn-all"></button>
+        <button type="button" class="btn" id="btn-open-ranking">순위표 보기</button>
+      </div>
+    </section>
+
+    <!-- 퀴즈 진행 화면. 3단계에서 채운다. -->
+    <section class="screen" id="screen-quiz" hidden>
+      <h2 class="title" id="quiz-title" tabindex="-1">퀴즈 진행</h2>
+
+      <div class="quiz-bar">
+        <span id="quiz-progress"></span>
+        <span id="quiz-score"></span>
+        <span id="quiz-category"></span>
+        <span class="badge" id="quiz-difficulty"></span>
+        <button type="button" class="btn btn-quiet" id="btn-quit">그만두기</button>
+      </div>
+
+      <p class="question" id="question-text" tabindex="-1"></p>
+      <div class="options" id="options"></div>
+      <!-- 이름이 없으면 초점이 와도 구현에 따라 낭독을 잃는다. aria-live는 주지 않는다(R5). -->
+      <div class="feedback" id="feedback" tabindex="-1" aria-label="채점 결과" hidden></div>
+      <button type="button" class="btn btn-primary" id="btn-next" hidden>다음 문제</button>
+    </section>
+
+    <!-- 결과 화면. 4단계에서 채운다. -->
+    <section class="screen" id="screen-result" hidden>
+      <h2 class="title" id="result-title" tabindex="-1">결과</h2>
+
+      <p id="result-score"></p>
+      <p id="result-rate"></p>
+      <p id="result-player"></p>
+      <p id="result-rank-message"></p>
+      <p class="notice" id="result-storage-notice" hidden>이 브라우저에서는 순위 기록을 저장할 수 없습니다.</p>
+      <div id="result-ranking"></div>
+
+      <div class="result-actions">
+        <button type="button" class="btn btn-primary" id="btn-retry">다시 도전</button>
+        <button type="button" class="btn" id="btn-home">처음으로</button>
+      </div>
+    </section>
+
+    <!-- 순위표 화면. 4단계에서 채운다. -->
+    <section class="screen" id="screen-ranking" hidden>
+      <h2 class="title" id="ranking-title" tabindex="-1">순위표</h2>
+
+      <p class="notice" id="ranking-storage-notice" hidden>이 브라우저에서는 순위 기록을 저장할 수 없습니다.</p>
+      <div id="ranking-tables"></div>
+
+      <div class="ranking-actions">
+        <button type="button" class="btn" id="btn-clear">기록 지우기</button>
+        <button type="button" class="btn btn-primary" id="btn-close-ranking">닫기</button>
+      </div>
+
+      <p class="notice" id="ranking-persist-notice">기록은 이 브라우저에만 저장되며, 브라우저 정책에 따라 사라질 수 있습니다.</p>
+    </section>
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -4,3 +4,6 @@
 # 계정과 키 메모 — 저장소에 올리지 않는다
 .env
 .env.*
+
+# Vercel CLI 연결 정보
+.vercel

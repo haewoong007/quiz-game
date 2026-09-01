@@ -8,6 +8,9 @@ const CATEGORY_LIMIT = 5;
 const ALL_LIMIT = 10;
 const STORAGE_KEY = 'quizGameRankings';
 const TOKEN_KEY = 'quizGameToken';
+const EXPIRY_BANNER_MS = 5 * 60 * 1000;   // 남은 시간이 이보다 적으면 배너를 띄운다
+const EXPIRY_BLOCK_MS = 10 * 60 * 1000;   // 남은 시간이 이보다 적으면 판 시작을 막는다
+const EXPIRY_TICK_MS = 30 * 1000;         // 남은 시간을 다시 세는 주기
 const PROBE_KEY = 'quizGameStorageProbe';
 const ALL_KEY = 'all';
 
@@ -246,6 +249,9 @@ function callSignin() {
     method: 'POST',
     headers: authHeaders()
   }).then(function (res) {
+    if (res.status === 401) {
+      throw new Error('expired');
+    }
     if (!res.ok) {
       throw new Error('로그인을 마치지 못했습니다.');
     }
@@ -264,6 +270,9 @@ function applySignedIn(user) {
   document.getElementById('btn-open-teacher').hidden = user.role !== 'teacher';
 
   showScreen('screen-start');
+
+  refreshExpiryBanner();
+  window.setInterval(refreshExpiryBanner, EXPIRY_TICK_MS);
 }
 
 /** 토큰을 지우고 로그인 화면으로 돌아간다. */
@@ -271,7 +280,66 @@ function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
   state.playerName = '';
   state.role = null;
+  refreshExpiryBanner();
   showScreen('screen-login');
+}
+
+/* 로그인 만료 안내 ---------------------------------------------------------
+ * 갱신을 만들지 않는다(계획서 결정 1). 토큰 안에 만료 시각이 있으므로
+ * 남은 시간은 셀 수 있다.
+ */
+
+/**
+ * 토큰에서 만료 시각을 읽어 남은 시간을 밀리초로 돌려준다.
+ * 토큰은 점으로 나뉜 세 토막이고 가운데 토막이 base64로 인코딩된 JSON이다.
+ * 그 안의 exp가 만료 시각이며 초 단위다.
+ */
+function millisecondsLeft() {
+  const token = readToken();
+  if (token === null) {
+    return 0;
+  }
+
+  const parts = token.split('.');
+  if (parts.length < 2) {
+    return 0;
+  }
+
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (typeof payload.exp !== 'number') {
+      return 0;
+    }
+    return payload.exp * 1000 - Date.now();
+  } catch (error) {
+    return 0;
+  }
+}
+
+/** 남은 시간이 5분 아래면 배너를 띄우고, 아니면 감춘다. */
+function refreshExpiryBanner() {
+  const banner = document.getElementById('session-expiry');
+
+  if (state.playerName === '' || millisecondsLeft() > EXPIRY_BANNER_MS) {
+    banner.hidden = true;
+    banner.textContent = '';
+    return;
+  }
+
+  banner.textContent = '로그인이 곧 만료됩니다. 다시 로그인해 주세요.';
+  banner.hidden = false;
+}
+
+/**
+ * 서버가 401을 보내면 로그인이 만료된 것이다.
+ * 토큰을 지우고 로그인 화면으로 보낸다.
+ */
+function handleExpired() {
+  sessionStorage.removeItem(TOKEN_KEY);
+  state.playerName = '';
+  state.role = null;
+  refreshExpiryBanner();
+  showLoginScreen('로그인이 만료되었습니다. 다시 로그인해 주세요.');
 }
 
 /** 로그인 화면을 띄우고 안내 문구를 낸다. */
@@ -357,6 +425,12 @@ function pickAllQuiz() {
 function startGame(mode, categoryId) {
   if (state.playerName === '') {
     showLoginScreen('게임을 시작하려면 로그인해 주세요.');
+    return;
+  }
+
+  // 판 도중에 만료되면 그 판을 버린다. 이어 하기가 없으므로 시작 전에 막는다.
+  if (millisecondsLeft() < EXPIRY_BLOCK_MS) {
+    alert('남은 로그인 시간이 한 판을 마치기에 모자랍니다. 먼저 다시 로그인해 주세요.');
     return;
   }
 
@@ -875,7 +949,11 @@ function restoreLogin() {
     return;
   }
 
-  callSignin().then(applySignedIn).catch(function () {
+  callSignin().then(applySignedIn).catch(function (error) {
+    if (error.message === 'expired') {
+      handleExpired();
+      return;
+    }
     sessionStorage.removeItem(TOKEN_KEY);
     showLoginScreen('로그인하지 못했습니다. 다시 시도해 주세요.');
   });

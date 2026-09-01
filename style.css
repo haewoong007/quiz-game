@@ -75,6 +75,19 @@ main {
   font-size: 0.9rem;
 }
 
+/* 만료 배너 */
+
+.expiry-banner {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* 로그인 화면 */
 
 .login-guide {

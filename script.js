@@ -7,6 +7,7 @@ const DIFFICULTY_LABELS = { easy: '초급', medium: '중급', hard: '고급' };
 const CATEGORY_LIMIT = 5;
 const ALL_LIMIT = 10;
 const STORAGE_KEY = 'quizGameRankings';
+const TOKEN_KEY = 'quizGameToken';
 const PROBE_KEY = 'quizGameStorageProbe';
 const ALL_KEY = 'all';
 
@@ -16,6 +17,7 @@ const ALL_KEY = 'all';
  */
 const state = {
   playerName: '',
+  role: null,
   mode: null,
   categoryId: null,
   quiz: [],
@@ -170,31 +172,121 @@ function renderCategoryCards() {
   });
 }
 
-/**
- * 입력란의 이름을 앞뒤 공백을 잘라 돌려준다.
- * 비었거나 12자를 넘으면 안내를 띄우고 null을 돌려준다.
- * 조용히 잘라 내지 않는다. 절단하면 순위표에 본인이 입력한 적 없는 이름이 남는다.
+/* 로그인 --------------------------------------------------------------------
+ * 라이브러리를 쓰지 않는다(계획서 결정 1). 인증 서비스의 깃허브 인증 경로로
+ * 보내고, 돌아온 주소에서 토큰을 직접 꺼내 쓴다.
  */
-function readPlayerName() {
-  const name = document.getElementById('player-name').value.trim();
-  const error = document.getElementById('name-error');
 
-  if (name === '') {
-    error.textContent = '이름을 입력해 주세요.';
-    return null;
-  }
-  if (name.length > 12) {
-    error.textContent = '이름은 12자까지 입력할 수 있습니다.';
-    return null;
-  }
-
-  error.textContent = '';
-  return name;
+/**
+ * 프로젝트 주소, 공개 키, 깃허브 인증 경로를 서버에서 받는다.
+ * 이 요청만 로그인을 요구하지 않는다(계획서 결정 6).
+ */
+function loadConfig() {
+  return fetch('/api/questions?action=config').then(function (res) {
+    if (!res.ok) {
+      throw new Error('설정을 받지 못했습니다.');
+    }
+    return res.json();
+  });
 }
 
-/** 이름 안내 문구를 지운다. 입력란의 input 이벤트에 건다. */
-function clearNameError() {
-  document.getElementById('name-error').textContent = '';
+/**
+ * 로그인을 마치고 돌아온 주소에서 토큰을 꺼낸다.
+ * 꺼낸 뒤 주소창에서 지운다. 지우지 않으면 새로고침이나 주소 공유로 흘러 나간다.
+ */
+function takeTokenFromUrl() {
+  if (location.hash === '') {
+    return null;
+  }
+
+  const params = new URLSearchParams(location.hash.slice(1));
+  const token = params.get('access_token');
+
+  if (token === null) {
+    return null;
+  }
+
+  history.replaceState(null, '', location.pathname + location.search);
+  return token;
+}
+
+/** 토큰은 sessionStorage에 둔다. 새로고침에는 남고 탭을 닫으면 사라진다. */
+function readToken() {
+  return sessionStorage.getItem(TOKEN_KEY);
+}
+
+/** 서버 함수와 DB 요청의 헤더에 토큰을 싣는다. */
+function authHeaders() {
+  return { Authorization: 'Bearer ' + readToken() };
+}
+
+/**
+ * 깃허브 인증 경로로 보낸다. 돌아올 주소를 함께 실어야 한다.
+ * 싣지 않으면 인증 서비스가 Site URL로 보내며, 그 값은 localhost:3000이다.
+ */
+function goToGithubLogin() {
+  const error = document.getElementById('login-error');
+
+  loadConfig().then(function (config) {
+    const back = location.origin + location.pathname;
+    location.href = config.githubAuthPath + '&redirect_to=' + encodeURIComponent(back);
+  }).catch(function () {
+    error.textContent = '로그인하지 못했습니다. 다시 시도해 주세요.';
+    error.hidden = false;
+  });
+}
+
+/**
+ * 로그인한 사람의 행을 찾아 인증 식별자를 기록하고 이름과 역할을 받는다.
+ * 이 요청을 건너뛰면 그 뒤가 전부 막힌다. 인증 식별자가 비어 있는 행은
+ * 정책이 접근을 허용하지 않아 브라우저가 자기 기록조차 조회하지 못한다.
+ */
+function callSignin() {
+  return fetch('/api/users?action=signin', {
+    method: 'POST',
+    headers: authHeaders()
+  }).then(function (res) {
+    if (!res.ok) {
+      throw new Error('로그인을 마치지 못했습니다.');
+    }
+    return res.json();
+  });
+}
+
+/** 로그인한 사용자의 이름과 역할을 화면에 반영하고 시작 화면을 보인다. */
+function applySignedIn(user) {
+  state.playerName = user.name;
+  state.role = user.role;
+
+  document.getElementById('user-name').textContent = user.name;
+
+  // 버튼을 감추는 것은 안내이지 통제가 아니다. 통제는 서버 함수가 한다.
+  document.getElementById('btn-open-teacher').hidden = user.role !== 'teacher';
+
+  showScreen('screen-start');
+}
+
+/** 토큰을 지우고 로그인 화면으로 돌아간다. */
+function logout() {
+  sessionStorage.removeItem(TOKEN_KEY);
+  state.playerName = '';
+  state.role = null;
+  showScreen('screen-login');
+}
+
+/** 로그인 화면을 띄우고 안내 문구를 낸다. */
+function showLoginScreen(message) {
+  const error = document.getElementById('login-error');
+
+  if (message === undefined) {
+    error.textContent = '';
+    error.hidden = true;
+  } else {
+    error.textContent = message;
+    error.hidden = false;
+  }
+
+  showScreen('screen-login');
 }
 
 /** Fisher-Yates로 섞은 새 배열을 돌려준다. 원본은 건드리지 않는다. */
@@ -259,17 +351,15 @@ function pickAllQuiz() {
 }
 
 /**
- * 이름 검증을 통과하면 판을 시작한다.
- * playerName을 넘기면 입력란을 읽지 않는다. "다시 도전"이 직전 판의 이름을
- * 그대로 쓰는 통로다. 입력란을 게임 상태의 통로로 삼지 않기 위해 인자로 받는다.
+ * 로그인한 상태에서만 판을 시작한다.
+ * 이름은 로그인할 때 서버가 돌려준 값이다. 입력란에서 읽지 않는다.
  */
-function startGame(mode, categoryId, playerName) {
-  const name = playerName === undefined ? readPlayerName() : playerName;
-  if (name === null) {
+function startGame(mode, categoryId) {
+  if (state.playerName === '') {
+    showLoginScreen('게임을 시작하려면 로그인해 주세요.');
     return;
   }
 
-  state.playerName = name;
   state.mode = mode;
   state.categoryId = categoryId;
   state.quiz = mode === 'all' ? pickAllQuiz() : pickCategoryQuiz(categoryId);
@@ -724,6 +814,7 @@ function init() {
     });
     console.error('데이터 검사 실패: ' + errors.length + '건. 게임을 시작하지 않는다.');
     showDataError();
+    showLoginScreen();
     return;
   }
 
@@ -735,7 +826,8 @@ function init() {
     startGame('all', null);
   });
 
-  document.getElementById('player-name').addEventListener('input', clearNameError);
+  document.getElementById('btn-login-github').addEventListener('click', goToGithubLogin);
+  document.getElementById('btn-logout').addEventListener('click', logout);
 
   document.getElementById('btn-open-ranking').addEventListener('click', function () {
     renderRankingScreen();
@@ -754,8 +846,7 @@ function init() {
   });
 
   document.getElementById('btn-retry').addEventListener('click', function () {
-    // 이름을 다시 묻지 않는다. 직전 판의 이름을 그대로 넘긴다.
-    startGame(state.mode, state.categoryId, state.playerName);
+    startGame(state.mode, state.categoryId);
   });
   document.getElementById('btn-home').addEventListener('click', function () {
     showScreen('screen-start');
@@ -763,6 +854,31 @@ function init() {
 
   document.getElementById('btn-quit').addEventListener('click', quitGame);
   document.getElementById('btn-next').addEventListener('click', goNext);
+
+  restoreLogin();
+}
+
+/**
+ * 로그인 상태를 정하고 첫 화면을 띄운다.
+ * 돌아온 주소에 토큰이 있으면 저장하고, 없으면 sessionStorage의 것을 쓴다.
+ * 토큰이 없으면 로그인 화면에서 멈춘다.
+ */
+function restoreLogin() {
+  const fresh = takeTokenFromUrl();
+
+  if (fresh !== null) {
+    sessionStorage.setItem(TOKEN_KEY, fresh);
+  }
+
+  if (readToken() === null) {
+    showLoginScreen();
+    return;
+  }
+
+  callSignin().then(applySignedIn).catch(function () {
+    sessionStorage.removeItem(TOKEN_KEY);
+    showLoginScreen('로그인하지 못했습니다. 다시 시도해 주세요.');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);

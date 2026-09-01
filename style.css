@@ -68,34 +68,37 @@ main {
   font-weight: 600;
 }
 
-.name-error {
+.login-error {
   min-height: 1.4rem;
-  margin: 0.4rem 0 0;
+  margin: 0.8rem 0 0;
   color: var(--danger);
   font-size: 0.9rem;
 }
 
-/* 이름 입력 */
+/* 로그인 화면 */
 
-.field {
-  margin-bottom: 1.5rem;
+.login-guide {
+  margin: 0 0 1.5rem;
+  color: var(--ink-soft);
 }
 
-.field-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-#player-name {
+#btn-login-github {
   width: 100%;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: inherit;
-  font: inherit;
+}
+
+/* 시작 화면의 사용자 줄 */
+
+.user-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+#user-name {
+  flex: 1;
+  font-weight: 600;
 }
 
 /* 카테고리 카드 */
@@ -305,8 +308,7 @@ main {
 
 .card:focus-visible,
 .btn:focus-visible,
-.option:focus-visible,
-#player-name:focus-visible {
+.option:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }

@@ -9,17 +9,28 @@
 </head>
 <body>
   <main>
+    <!-- 로그인 화면 -->
+    <section class="screen" id="screen-login">
+      <h1 class="title" id="login-title" tabindex="-1">상식 퀴즈 게임</h1>
+
+      <p class="login-guide">게임을 시작하려면 로그인해 주세요.</p>
+
+      <button type="button" class="btn btn-primary" id="btn-login-github">깃허브로 로그인</button>
+
+      <p class="login-error" id="login-error" hidden></p>
+    </section>
+
     <!-- 시작 화면 -->
-    <section class="screen" id="screen-start">
+    <section class="screen" id="screen-start" hidden>
       <h1 class="title" id="start-title" tabindex="-1">상식 퀴즈 게임</h1>
 
-      <p class="data-error" id="data-error" hidden>문제 데이터를 불러오지 못했습니다.</p>
-
-      <div class="field">
-        <label class="field-label" for="player-name">플레이어 이름</label>
-        <input type="text" id="player-name" autocomplete="off">
-        <p class="name-error" id="name-error"></p>
+      <div class="user-bar">
+        <span id="user-name"></span>
+        <button type="button" class="btn btn-quiet" id="btn-open-teacher" hidden>선생님 화면</button>
+        <button type="button" class="btn btn-quiet" id="btn-logout">로그아웃</button>
       </div>
+
+      <p class="data-error" id="data-error" hidden>문제 데이터를 불러오지 못했습니다.</p>
 
       <!-- 카드는 CATEGORIES에서 그린다. 마크업에 카테고리 이름을 쓰지 않는다. -->
       <div class="cards" id="category-cards"></div>

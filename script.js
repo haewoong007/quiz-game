@@ -319,14 +319,19 @@ function millisecondsLeft() {
 /** 남은 시간이 5분 아래면 배너를 띄우고, 아니면 감춘다. */
 function refreshExpiryBanner() {
   const banner = document.getElementById('session-expiry');
+  const left = millisecondsLeft();
 
-  if (state.playerName === '' || millisecondsLeft() > EXPIRY_BANNER_MS) {
+  if (state.playerName === '' || left > EXPIRY_BANNER_MS) {
     banner.hidden = true;
     banner.textContent = '';
     return;
   }
 
-  banner.textContent = '로그인이 곧 만료됩니다. 다시 로그인해 주세요.';
+  // 이미 지난 뒤에는 "곧"이 아니다. 판 도중에는 401을 받을 요청이 없어
+  // 배너가 만료를 알리는 유일한 자리다.
+  banner.textContent = left <= 0
+    ? '로그인이 만료되었습니다. 다시 로그인해 주세요.'
+    : '로그인이 곧 만료됩니다. 다시 로그인해 주세요.';
   banner.hidden = false;
 }
 
